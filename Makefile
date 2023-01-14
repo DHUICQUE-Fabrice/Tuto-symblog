@@ -54,6 +54,7 @@ else
 	echo 'APP_ENV=$(ENV)' >> ./project/.env.$(ENV)
 	echo 'DATABASE_URL=$(DATABASE_URL)' >> ./project/.env.$(ENV)
 	$(COMPOSER) require vich/uploader-bundle
+	$(COMPOSER) require symfony/webpack-encore-bundle
 	echo $(shell docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' www_$(PROJECTNAME)_$(ENV))	$(PROJECTNAME).test >> /etc/hosts
 	@$(call GREENBG,"Your project is ready at http://$(PROJECTNAME).test")
 	@$(call GREENBG,"Your mailer is available at http://127.0.0.1:$(MAILPORT)")
@@ -122,6 +123,9 @@ composer-install: load-config ## Install dependencies
 
 composer-update: load-config ## Update dependencies
 	$(COMPOSER) update
+
+composer-require: load-config ## Install new bundle
+	$(COMPOSER) require $(BUNDLE)
 
 ## —— 🐈 NPM —————————————————————————————————————————————————————————————————
 npm-install: load-config ## Install all npm dependencies
