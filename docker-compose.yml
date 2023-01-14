@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql
+    container_name: db_tuto-symblog_dev
+    restart: always
+    volumes:
+      - db-data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: 'symblog'
+      MYSQL_USER: 'fabrice'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'S3cr3t!'
+    networks:
+      - dev
+
+  maildev:
+    image: maildev/maildev
+    container_name: maildev_tuto-symblog_dev
+    command: bin/maildev --web 80 --smtp 25 --hide-extensions STARTTLS
+    ports:
+      - "8001:80"
+    restart: always
+    networks:
+      - dev
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: phpmyadmin_tuto-symblog_dev
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "8002:80"
+    environment:
+      PMA_HOST: db
+    networks:
+    - dev
+
+  www:
+    build: docker
+    container_name: www_tuto-symblog_dev
+    restart: always
+    ports:
+      - "8000:80"
+    volumes:
+      - ./docker/vhosts:/etc/apache2/sites-enabled
+      - ./:/var/www
+    networks:
+      - dev
+
+networks:
+  dev:
+
+volumes:
+  db-data:

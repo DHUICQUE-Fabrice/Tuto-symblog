@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql
+    container_name: db_PROJECTNAME
+    restart: always
+    volumes:
+      - db-data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: 'DBNAME'
+      MYSQL_USER: 'DBUSER'
+      MYSQL_PASSWORD: 'DBPASS'
+      MYSQL_ROOT_PASSWORD: 'DBROOTPASS'
+    networks:
+      - dev
+
+  maildev:
+    image: maildev/maildev
+    container_name: maildev_PROJECTNAME
+    command: bin/maildev --web 80 --smtp 25 --hide-extensions STARTTLS
+    ports:
+      - "MAILPORT:80"
+    restart: always
+    networks:
+      - dev
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: phpmyadmin_PROJECTNAME
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "PHPMYADMINPORT:80"
+    environment:
+      PMA_HOST: db
+    networks:
+    - dev
+
+  www:
+    build: docker
+    container_name: www_PROJECTNAME
+    restart: always
+    ports:
+      - "WWWPORT:80"
+    volumes:
+      - ./docker/vhosts:/etc/apache2/sites-enabled
+      - ./:/var/www
+    networks:
+      - dev
+
+networks:
+  dev:
+
+volumes:
+  db-data:
